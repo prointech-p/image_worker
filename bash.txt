@@ -1,0 +1,1 @@
+pyinstaller --onefile --name image_copier image_copier.py

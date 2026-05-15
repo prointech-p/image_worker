@@ -1,5 +1,9 @@
 *.exe
 
+img_source/
+img_result/
+xlsx_result/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

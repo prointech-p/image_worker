@@ -1,2 +1,5 @@
-source_folder = "E:/FL/Avito/image_system/image_data/Исходные фото"
-destination_folder = "E:/FL/Avito/image_system/image_data/Результат"
+img_source_folder = "img_source"
+img_destination_folder = "img_result"
+xlsx_source_folder = "img_result"
+xlsx_output_file = "xlsx_result/result.xlsx"
+base_url = "https://example.com/images"

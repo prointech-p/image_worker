@@ -1,1 +1,1 @@
-pyinstaller --onefile --name image_copier image_copier.py
+pyinstaller --onefile --name image_service main.py

@@ -43,6 +43,26 @@ class XlsxCreator:
             return name_without_ext.rsplit('_', 1)[0]
         return name_without_ext
     
+    @staticmethod
+    def product_sort_key(code: str) -> tuple:
+        """
+        Ключ для сортировки товаров:
+        Сначала базовый ID (без дефиса), потом модификации с дефисом
+        
+        Args:
+            code: Код товара (например, 'KS0002' или 'KS0002-1')
+            
+        Returns:
+            Кортеж для сравнения (базовый_ид, наличие_дефиса, суффикс)
+        """
+        if '-' in code:
+            base, suffix = code.split('-', 1)
+            # (базовый ID, 1 - чтобы модификации шли после базового, суффикс для сортировки между собой)
+            return (base, 1, suffix)
+        else:
+            # (базовый ID, 0 - чтобы базовые шли первыми, пустая строка)
+            return (code, 0, '')
+ 
     def process_images(self, folder_path: Path, base_url: str) -> Dict[str, List[str]]:
         """
         Обработка всех изображений в папке
@@ -98,8 +118,11 @@ class XlsxCreator:
                 self.log("В папке не найдено изображений!", error=True)
                 return False
             
+            # Сортировка товаров: сначала базовые ID, потом их модификации
+            sorted_products = sorted(products.items(), key=lambda x: self.product_sort_key(x[0]))
+            
             if progress_callback:
-                progress_callback(10, 0, len(products))
+                progress_callback(10, 0, len(sorted_products))
             
             # Создание Excel файла
             workbook = openpyxl.Workbook()
@@ -114,9 +137,9 @@ class XlsxCreator:
             
             # Заполнение данных
             row = 2
-            total_rows = len(products)
+            total_rows = len(sorted_products)
             
-            for idx, (product_code, images) in enumerate(products.items()):
+            for idx, (product_code, images) in enumerate(sorted_products):
                 # Формируем ссылки
                 links = [f"{base_url}/{img_name}" for img_name in images]
                 links_str = " | ".join(links)
@@ -140,7 +163,7 @@ class XlsxCreator:
             workbook.save(output_path)
             
             self.log(f"Excel файл создан: {output_path.absolute()}")
-            self.log(f"Обработано товаров: {len(products)}")
+            self.log(f"Обработано товаров: {len(sorted_products)}")
             self.log(f"Всего файлов: {sum(len(imgs) for imgs in products.values())}")
             
             return True
@@ -148,3 +171,4 @@ class XlsxCreator:
         except Exception as e:
             self.log(f"Ошибка при создании Excel файла: {e}", error=True)
             return False
+
